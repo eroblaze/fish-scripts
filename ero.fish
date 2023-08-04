@@ -166,75 +166,13 @@ for i_tc in (seq 1 $input_cnt)
 	# ----
 
 	# Trim leading and trailing whitespaces
-	set -l answer_lines (cat $current_answer_file)
-	set -l output_lines (cat $current_output_file)
+	set -l output_lines (cat $current_output_file | string trim)
+	set -l answer_lines (cat $current_answer_file | string trim)
 	set -l answer_len (count $answer_lines)
 	set -l output_len (count $output_lines)
 
-	set -l to_remove
-	set -l answer_to_remove
-	set -l found_begin 0
-	set -l found_end 0
-
-	for i_out_len in (seq 1 $output_len)
-		if test -z $output_lines[$i_out_len] && test $found_begin -eq 0
-			# current line is empty
-			set -a to_remove $i_out_len
-		else
-			set found_begin 1
-		end
-
-		if test -z $output_lines[(math $i_out_len "*" -1)] && test $found_end -eq 0
-			# current line is empty
-			set -a to_remove (math $i_out_len "*" -1)
-		else
-			set found_end 1
-		end
-
-		if test $found_begin -eq 1 && test $found_end -eq 1
-			break
-		end
-	end
-
-	set found_begin 0
-	set found_end 0
-
-	for i_ans_len in (seq 1 $answer_len)
-		if test -z $answer_lines[$i_ans_len] && test $found_begin -eq 0
-			# current line is empty
-			set -a answer_to_remove $i_ans_len
-		else
-			set found_begin 1
-		end
-
-		if test -z $answer_lines[(math $i_ans_len "*" -1)] && test $found_end -eq 0
-			# current line is empty
-			set -a answer_to_remove (math $i_ans_len "*" -1)
-		else
-			set found_end 1
-		end
-
-		if test $found_begin -eq 1 && test $found_end -eq 1
-			break
-		end
-	end
-
-	for idx in $to_remove
-		set -e output_lines[$idx]
-	end
-
-	for idx in $answer_to_remove
-		set -e answer_lines[$idx]
-	end
-	# ---- 
-
-	# Re-assign the variables
-	set answer_len (count $answer_lines)
-	set output_len (count $output_lines)
-	# ----
-
-	set -l output_string (string join '' $output_lines)
-	set -l answer_string (string join '' $answer_lines)
+	set -l output_string (cat $current_output_file | string trim | string join '')
+	set -l answer_string (cat $current_answer_file | string trim | string join '')
 	set -l max_len (math max $answer_len, $output_len)
 
 	# Putting $answer_string in "" is important so that it does not error out when it is empty

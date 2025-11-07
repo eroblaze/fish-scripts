@@ -242,5 +242,10 @@ echo "----------------------------------------------"
 echo "✨ Update complete!"
 
 # Only show counts if nonzero
-((updated_count > 0)) && echo "✅ Themes updated: $updated_count"
-((skipped_count > 0)) && echo "⚠️ Themes skipped: $skipped_count"
+if ((updated_count > 0)); then
+  echo "✅ Themes updated: $updated_count"
+fi
+
+if ((skipped_count > 0)); then
+  echo "⚠️ Themes skipped: $skipped_count"
+fi

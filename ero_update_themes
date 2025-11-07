@@ -1,0 +1,246 @@
+#!/usr/bin/env bash
+set -e  # Exit if something fails
+
+# Path to your themes directory (edit this if needed)
+THEMES_DIR="$HOME/.config/omarchy/themes"
+
+# ===============================
+# Define theme configurations
+# ===============================
+
+catppuccin_latte_content=$(cat <<'EOF'
+return {
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = false,
+    config = function()
+      require("catppuccin").setup({
+        flavour = "latte", -- other options: "mocha", "frappe", "macchiato"
+      })
+      vim.cmd.colorscheme("catppuccin-latte")
+    end,
+  },
+}
+EOF
+)
+
+catppuccin_content=$(cat <<'EOF'
+return {
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = false,
+    config = function()
+      require("catppuccin").setup({
+        flavour = "mocha", -- other options: "mocha", "frappe", "macchiato"
+      })
+      vim.cmd.colorscheme("catppuccin-mocha")
+    end,
+  },
+}
+EOF
+)
+
+everforest_content=$(cat <<'EOF'
+return {
+  {
+    "neanias/everforest-nvim",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme everforest")
+    end,
+  },
+}
+EOF
+)
+
+flexoki_light_content=$(cat <<'EOF'
+return {
+  {
+    "kepano/flexoki-neovim",
+    name = "flexoki",
+    config = function()
+      vim.cmd("colorscheme flexoki-light")
+    end
+  }
+}
+EOF
+)
+
+gruvbox_content=$(cat <<'EOF'
+return {
+  {
+    "ellisonleao/gruvbox.nvim",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme gruvbox")
+    end,
+  },
+}
+EOF
+)
+
+kanagawa_content=$(cat <<'EOF'
+return {
+  {
+    "rebelot/kanagawa.nvim",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme kanagawa")
+    end,
+  },
+}
+EOF
+)
+
+matte_black_content=$(cat <<'EOF'
+return {
+  {
+    "tahayvr/matteblack.nvim",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme matteblack")
+    end,
+  },
+}
+EOF
+)
+
+nord_content=$(cat <<'EOF'
+return {
+  {
+    "EdenEast/nightfox.nvim",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme nordfox")
+    end,
+  },
+}
+EOF
+)
+
+osaka_jade_content=$(cat <<'EOF'
+return {
+  "ribru17/bamboo.nvim",
+  lazy = false,
+  config = function()
+    require("bamboo").setup({})
+    require("bamboo").load()
+  end,
+}
+EOF
+)
+
+ristretto_content=$(cat <<'EOF'
+return {
+  {
+    "gthelding/monokai-pro.nvim",
+    lazy = false,
+    config = function()
+      require("monokai-pro").setup({
+        filter = "ristretto",
+        override = function()
+          return {
+            NonText = { fg = "#948a8b" },
+            MiniIconsGrey = { fg = "#948a8b" },
+            MiniIconsRed = { fg = "#fd6883" },
+            MiniIconsBlue = { fg = "#85dacc" },
+            MiniIconsGreen = { fg = "#adda78" },
+            MiniIconsYellow = { fg = "#f9cc6c" },
+            MiniIconsOrange = { fg = "#f38d70" },
+            MiniIconsPurple = { fg = "#a8a9eb" },
+            MiniIconsAzure = { fg = "#a8a9eb" },
+            MiniIconsCyan = { fg = "#85dacc" },
+          }
+        end,
+      })
+      vim.cmd("colorscheme monokai-pro")
+    end,
+  },
+}
+EOF
+)
+
+rose_pine_content=$(cat <<'EOF'
+return {
+  {
+    "rose-pine/neovim",
+    name = "rose-pine",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme rose-pine-dawn")
+    end,
+  },
+}
+EOF
+)
+
+tokyo_night_content=$(cat <<'EOF'
+return {
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    config = function()
+      vim.cmd("colorscheme tokyonight")
+    end
+  }
+}
+EOF
+)
+
+# ===============================
+# Map: folder name → content
+# ===============================
+
+declare -A themes_map=(
+  ["catppuccin-latte"]="$catppuccin_latte_content"
+  ["catppuccin"]="$catppuccin_content"
+  ["everforest"]="$everforest_content"
+  ["flexoki-light"]="$flexoki_light_content"
+  ["gruvbox"]="$gruvbox_content"
+  ["kanagawa"]="$kanagawa_content"
+  ["matte-black"]="$matte_black_content"
+  ["nord"]="$nord_content"
+  ["osaka-jade"]="$osaka_jade_content"
+  ["ristretto"]="$ristretto_content"
+  ["rose-pine"]="$rose_pine_content"
+  ["tokyo-night"]="$tokyo_night_content"
+)
+
+# ===============================
+# Write to existing folders only
+# ===============================
+
+echo "🚀 Updating Neovim theme configs in: $THEMES_DIR"
+echo "----------------------------------------------"
+
+updated_count=0
+skipped_count=0
+timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+
+for folder in "${!themes_map[@]}"; do
+  theme_dir="$THEMES_DIR/$folder"
+  target="$theme_dir/neovim.lua"
+
+  if [[ -d "$theme_dir" ]]; then
+    {
+      echo "-- Updated at: $timestamp"
+      echo "${themes_map[$folder]}"
+    } > "$target"
+    echo "✅ Updated: $target"
+    ((updated_count++)) || true
+
+  else
+    echo "⚠️ Skipped (folder not found): $theme_dir"
+    ((skipped_count++)) || true
+  fi
+done
+
+echo "----------------------------------------------"
+echo "✨ Update complete!"
+
+# Only show counts if nonzero
+((updated_count > 0)) && echo "✅ Themes updated: $updated_count"
+((skipped_count > 0)) && echo "⚠️ Themes skipped: $skipped_count"
